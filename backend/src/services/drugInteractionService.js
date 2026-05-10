@@ -3,8 +3,12 @@ const DrugInteraction = require('../models/DrugInteraction');
 const rxnormService = require('./rxnormService');
 const openFdaService = require('./openFdaService');
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function findMedicineInDB(name) {
-  const normalizedName = name.toLowerCase().trim();
+  const normalizedName = escapeRegex(name.toLowerCase().trim());
   
   const medicine = await Medicine.findOne({
     $or: [
@@ -120,11 +124,12 @@ async function checkDrugInteractions(drugNames) {
     }
   }
   
+  const knownInteractions = interactions.filter(i => i.severity !== 'unknown');
   const highSeverityInteractions = interactions.filter(i => i.severity === 'high');
   const moderateSeverityInteractions = interactions.filter(i => i.severity === 'moderate');
   
   return {
-    hasInteractions: interactions.length > 0,
+    hasInteractions: knownInteractions.length > 0,
     hasHighSeverity: highSeverityInteractions.length > 0,
     hasModerateSeverity: moderateSeverityInteractions.length > 0,
     interactions,
