@@ -8,10 +8,8 @@ const clinicalLogic = require('../services/clinicalLogic');
 const drugInteractionService = require('../services/drugInteractionService');
 const ragService = require('../services/ragService');
 
-function determineCombinedRisk(triageResult, aiResult, symptoms) {
+function determineCombinedRisk(triageResult, aiResult, symptomsAnalysis) {
   if (!triageResult || !aiResult) return 'moderate';
-  
-  const symptomsAnalysis = clinicalLogic.analyzeSymptoms(symptoms || '', triageResult);
   
   if (triageResult.isEmergency || triageResult.severity === 'critical' || 
       aiResult.risk_level === 'critical' || symptomsAnalysis.riskLevel === 'critical') {
@@ -271,7 +269,7 @@ exports.analyze = async function(req, res, next) {
       }
     }
 
-    const combinedRiskLevel = determineCombinedRisk(triageResult, aiResult, symptoms);
+    const combinedRiskLevel = determineCombinedRisk(triageResult, aiResult, symptomsAnalysis);
     
     let aiConditions = aiResult.possible_conditions || [];
     if (aiResult.error === 'quota_exceeded') {
