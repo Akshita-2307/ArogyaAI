@@ -31,6 +31,23 @@ const analysisSchema = new mongoose.Schema(
       confidence: Number,
       detected_symptoms: [String],
       recommended_specialist: String,
+      drug_interactions: {
+        has_interactions: Boolean,
+        has_high_severity: Boolean,
+        interactions: [mongoose.Schema.Types.Mixed],
+        summary: String,
+        checked_medicines: [String],
+      },
+    },
+    drugInteractions: {
+      hasInteractions: Boolean,
+      hasHighSeverity: Boolean,
+      hasModerateSeverity: Boolean,
+      highSeverityCount: Number,
+      moderateSeverityCount: Number,
+      interactions: [mongoose.Schema.Types.Mixed],
+      summary: String,
+      checkedMedicines: [String],
     },
     combinedRiskLevel: {
       type: String,
