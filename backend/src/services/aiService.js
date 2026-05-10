@@ -447,7 +447,8 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
         ? Math.max(0, Math.min(1, parsed.confidence_score)) 
         : 0.6,
       clinical_reasoning: parsed.clinical_reasoning || parsed.summary || 'Comprehensive analysis completed.',
-      suggested_tests: cleanArray(parsed.suggested_tests)
+      suggested_tests: cleanArray(parsed.suggested_tests),
+      detected_medicines: cleanArray(parsed.detected_medicines).slice(0, 15)
     };
 
   } catch (error) {
@@ -486,7 +487,7 @@ async function analyzeSymptoms(symptoms, userContext, imageBase64, uploadedFiles
   let fileDescriptions = [];
   if (uploadedFiles && uploadedFiles.length > 0) {
     uploadedFiles.forEach(file => {
-      if (file.category === 'image' && file !== imageBase64) {
+      if (file.category === 'image') {
         fileDescriptions.push(`Image provided: ${file.originalName || file.fileName}`);
       }
     });
