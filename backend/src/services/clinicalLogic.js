@@ -278,10 +278,10 @@ function analyzeSymptoms(symptoms, triageResult, prescriptionText) {
         medicineVariations.push(medicineLower.replace(/_/g, '-'));
       }
       
-      // Check if any variation matches (case-insensitive)
+      // Check if any variation matches (case-insensitive, word boundary)
       const found = medicineVariations.some(v => {
-        return normalizedPrescription.includes(v) || 
-               normalizedPrescription.includes(v.replace(/-/g, ' '));
+        const escaped = v.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp(`\\b${escaped}\\b`, 'i').test(normalizedPrescription);
       });
       
       if (found) {
