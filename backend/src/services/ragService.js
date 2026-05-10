@@ -5,6 +5,10 @@ const clinicalLogic = require('./clinicalLogic');
 
 const KNOWLEDGE_EMBEDDING_SIZE = 2000;
 
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 async function retrieveRelevantKnowledge(symptomsText, conditions, prescriptionText) {
   const knowledgeChunks = [];
   
@@ -13,11 +17,12 @@ async function retrieveRelevantKnowledge(symptomsText, conditions, prescriptionT
       const medicines = clinicalLogic.extractMedicinesFromText(prescriptionText);
       
       for (const medName of medicines) {
+        const escaped = escapeRegex(medName);
         const medicineDoc = await Medicine.findOne({
           $or: [
-            { name: { $regex: new RegExp(`^${medName}$`, 'i') } },
-            { genericName: { $regex: new RegExp(`^${medName}$`, 'i') } },
-            { brandNames: { $regex: new RegExp(`^${medName}$`, 'i') } }
+            { name: { $regex: new RegExp(`^${escaped}$`, 'i') } },
+            { genericName: { $regex: new RegExp(`^${escaped}$`, 'i') } },
+            { brandNames: { $regex: new RegExp(`^${escaped}$`, 'i') } }
           ]
         }).lean();
         
@@ -30,8 +35,8 @@ async function retrieveRelevantKnowledge(symptomsText, conditions, prescriptionT
           
           const interactions = await DrugInteraction.find({
             $or: [
-              { drug1Name: { $regex: new RegExp(`^${medName}$`, 'i') } },
-              { drug2Name: { $regex: new RegExp(`^${medName}$`, 'i') } }
+              { drug1Name: { $regex: new RegExp(`^${escaped}$`, 'i') } },
+              { drug2Name: { $regex: new RegExp(`^${escaped}$`, 'i') } }
             ]
           }).lean();
           
