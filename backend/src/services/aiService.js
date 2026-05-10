@@ -140,6 +140,13 @@ function parseJson(text) {
           riskExplanation = expMatch[1] + '...';
         }
         
+        // Try to extract detected_medicines
+        const medsMatch = cleaned.match(/"detected_medicines"\s*:\s*\[(.*?)\]/i);
+        let detectedMeds = [];
+        if (medsMatch) {
+          detectedMeds = medsMatch[1].match(/"([^"]+)"/g)?.map(m => m.replace(/"/g, '')) || [];
+        }
+        
         return {
           risk_level: riskLevel,
           risk_explanation: riskExplanation,
@@ -150,7 +157,7 @@ function parseJson(text) {
           confidence_score: 0.5,
           clinical_reasoning: 'Analysis completed with partial AI response.',
           suggested_tests: null,
-          detected_medicines: []
+          detected_medicines: detectedMeds
         };
       }
     }
