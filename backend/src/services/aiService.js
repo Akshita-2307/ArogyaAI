@@ -334,16 +334,14 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
         };
       }
 
-      const isImageError = imageData && (
+      const isImageError = imageData && response.status !== 503 && (
         errLower.includes('image') || 
         errLower.includes('vision') || 
         errLower.includes('unsupported') ||
         errLower.includes('does not support') ||
         errLower.includes('inline') ||
         errLower.includes('not support') ||
-        errLower.includes('model') ||
         errLower.includes('permission') ||
-        errLower.includes('vision model') ||
         errLower.includes('screenshot')
       );
       
