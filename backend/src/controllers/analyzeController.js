@@ -9,21 +9,22 @@ const drugInteractionService = require('../services/drugInteractionService');
 const ragService = require('../services/ragService');
 
 function determineCombinedRisk(triageResult, aiResult, symptomsAnalysis) {
-  if (!triageResult || !aiResult) return 'moderate';
+  if (!triageResult && !aiResult) return 'moderate';
   
-  if (triageResult.isEmergency || triageResult.severity === 'critical' || 
-      aiResult.risk_level === 'critical' || symptomsAnalysis.riskLevel === 'critical') {
-    return 'critical';
-  }
-
-  if (triageResult.severity === 'high' || aiResult.risk_level === 'high' || symptomsAnalysis.riskLevel === 'high') {
-    return 'high';
-  }
-
-  if (triageResult.severity === 'moderate' || aiResult.risk_level === 'moderate' || symptomsAnalysis.riskLevel === 'moderate') {
-    return 'moderate';
-  }
-
+  const triageCritical = triageResult && (triageResult.isEmergency || triageResult.severity === 'critical');
+  const triageHigh = triageResult && triageResult.severity === 'high';
+  const triageModerate = triageResult && triageResult.severity === 'moderate';
+  const aiCritical = aiResult && aiResult.risk_level === 'critical';
+  const aiHigh = aiResult && aiResult.risk_level === 'high';
+  const aiModerate = aiResult && aiResult.risk_level === 'moderate';
+  const clinicalCritical = symptomsAnalysis && symptomsAnalysis.riskLevel === 'critical';
+  const clinicalHigh = symptomsAnalysis && symptomsAnalysis.riskLevel === 'high';
+  const clinicalModerate = symptomsAnalysis && symptomsAnalysis.riskLevel === 'moderate';
+  
+  if (triageCritical || aiCritical || clinicalCritical) return 'critical';
+  if (triageHigh || aiHigh || clinicalHigh) return 'high';
+  if (triageModerate || aiModerate || clinicalModerate) return 'moderate';
+  
   return 'low';
 }
 
@@ -407,6 +408,7 @@ exports.getAnalysis = async function(req, res, next) {
       createdAt: analysis.createdAt,
       analyzedAt: analysis.createdAt,
       user: analysis.user,
+      drugInteractions: analysis.drugInteractions,
     };
 
     res.status(200).json({
