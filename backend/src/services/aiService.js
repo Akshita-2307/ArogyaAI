@@ -129,12 +129,20 @@ function parseJson(text) {
     // Handle truncated/incomplete JSON - try to extract what's valid
     const truncatedMatch = cleaned.match(/^\{[\s\S]*risk_level["\s:]+"([^"]+)"/i);
     if (truncatedMatch) {
-      const riskLevel = truncatedMatch[1];
-      if (['critical', 'high', 'moderate', 'low'].includes(riskLevel.toLowerCase())) {
+      const riskLevel = truncatedMatch[1].toLowerCase();
+      if (['critical', 'high', 'moderate', 'low'].includes(riskLevel)) {
         console.log('[Parse] Extracted risk_level from truncated response:', riskLevel);
+        
+        // Try to extract risk_explanation too
+        let riskExplanation = 'Analysis completed from partial AI response.';
+        const expMatch = cleaned.match(/"risk_explanation"\s*:\s*"([^"]*)/i);
+        if (expMatch && expMatch[1].length > 10) {
+          riskExplanation = expMatch[1] + '...';
+        }
+        
         return {
-          risk_level: riskLevel.toLowerCase(),
-          risk_explanation: 'Analysis completed from partial AI response.',
+          risk_level: riskLevel,
+          risk_explanation: riskExplanation,
           summary: 'Analysis completed based on available data.',
           possible_conditions: [],
           recommendations: ['Consult a healthcare professional'],
