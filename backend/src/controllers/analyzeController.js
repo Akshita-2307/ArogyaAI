@@ -313,7 +313,8 @@ exports.analyze = async function(req, res, next) {
       ? aiResult.risk_explanation
       : clinicalRiskExplanation;
     
-    const aiConfidence = aiResult.confidence_score || null;
+    const aiConfidence = aiResult.confidence_score !== undefined && aiResult.confidence_score !== null 
+      ? aiResult.confidence_score : null;
     const finalConfidence = clinicalLogic.calculateConfidence(combinedRiskLevel, symptomsAnalysis, aiConfidence);
 
     const aiAnalysis = {

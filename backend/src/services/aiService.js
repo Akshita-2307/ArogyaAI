@@ -1,6 +1,5 @@
 const https = require('https');
 
-const GEMINI_API_VERSION = 'v1beta';
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 
 function buildPrompt(symptoms, userContext, prescriptionText, fileDescriptions, knowledgeContext) {
