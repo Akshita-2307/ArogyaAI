@@ -139,7 +139,7 @@ Be thorough and extract every piece of text you can see.`;
         console.log('[HF OCR] Model returned empty result');
         
       } catch (modelError) {
-        console.warn('[HF OCR] Model', model, 'failed:', modelError.message.substring(0, 100));
+        console.warn('[HF OCR] Model', model, 'failed:', (modelError.message || String(modelError)).substring(0, 100));
         continue;
       }
     }
