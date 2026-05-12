@@ -85,17 +85,19 @@ function makeRequest(body) {
   return new Promise(function(resolve, reject) {
     const options = {
       hostname: 'generativelanguage.googleapis.com',
-      path: '/v1beta/models/' + DEFAULT_MODEL + ':generateContent?key=' + process.env.GEMINI_API_KEY,
+      path: '/v1beta/models/' + DEFAULT_MODEL + ':generateContent?key=' + encodeURIComponent(process.env.GEMINI_API_KEY),
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       }
     };
 
+    let rejected = false;
     const req = https.request(options, function(res) {
       let data = '';
       res.on('data', function(chunk) { data += chunk; });
       res.on('end', function() {
+        if (rejected) return;
         try {
           resolve({ status: res.statusCode, data: JSON.parse(data) });
         } catch (e) {
@@ -104,8 +106,8 @@ function makeRequest(body) {
       });
     });
 
-    req.on('error', reject);
-    req.setTimeout(120000, function() { req.destroy(); reject(new Error('Request timeout')); });
+    req.on('error', function(e) { if (!rejected) { rejected = true; reject(e); } });
+    req.setTimeout(120000, function() { if (!rejected) { rejected = true; req.destroy(); reject(new Error('Request timeout')); } });
     
     if (body) req.write(JSON.stringify(body));
     req.end();
@@ -435,19 +437,25 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
         .map(item => cleanString(item));
     };
 
+    const cleanedConditions = cleanArray(parsed.possible_conditions).slice(0, 5);
+    const cleanedRecommendations = cleanArray(parsed.recommendations).slice(0, 5);
+    const cleanedRedFlags = cleanArray(parsed.red_flags).slice(0, 5);
+    const cleanedTests = cleanArray(parsed.suggested_tests);
+    const cleanedMeds = cleanArray(parsed.detected_medicines).slice(0, 15);
+
     return {
       risk_level: normalizedRisk,
       risk_explanation: String(parsed.risk_explanation || parsed.summary || 'Analysis complete').substring(0, 400),
       summary: String(parsed.summary || parsed.risk_explanation || 'Analysis complete').substring(0, 200),
-      possible_conditions: cleanArray(parsed.possible_conditions).slice(0, 5) || ['General Illness', 'Viral Infection'],
-      recommendations: cleanArray(parsed.recommendations).slice(0, 5) || ['Please consult a healthcare professional'],
-      red_flags: cleanArray(parsed.red_flags).slice(0, 5),
+      possible_conditions: cleanedConditions.length > 0 ? cleanedConditions : ['General Illness', 'Viral Infection'],
+      recommendations: cleanedRecommendations.length > 0 ? cleanedRecommendations : ['Please consult a healthcare professional'],
+      red_flags: cleanedRedFlags,
       confidence_score: typeof parsed.confidence_score === 'number' 
         ? Math.max(0, Math.min(1, parsed.confidence_score)) 
         : 0.6,
       clinical_reasoning: parsed.clinical_reasoning || parsed.summary || 'Comprehensive analysis completed.',
-      suggested_tests: cleanArray(parsed.suggested_tests),
-      detected_medicines: cleanArray(parsed.detected_medicines).slice(0, 15)
+      suggested_tests: cleanedTests.length > 0 ? cleanedTests : null,
+      detected_medicines: cleanedMeds
     };
 
   } catch (error) {
