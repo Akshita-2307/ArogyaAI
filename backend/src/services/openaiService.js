@@ -106,7 +106,8 @@ async function analyzeWithOpenAI(prompt, attempt) {
         ? Math.max(0, Math.min(1, parsed.confidence_score)) 
         : 0.6,
       clinical_reasoning: parsed.clinical_reasoning || parsed.summary || 'Comprehensive analysis completed.',
-      suggested_tests: Array.isArray(parsed.suggested_tests) ? parsed.suggested_tests : null
+      suggested_tests: Array.isArray(parsed.suggested_tests) ? parsed.suggested_tests : null,
+      detected_medicines: Array.isArray(parsed.detected_medicines) ? parsed.detected_medicines.slice(0, 15) : []
     };
 
   } catch (error) {

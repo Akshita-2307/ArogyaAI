@@ -4,7 +4,7 @@ const OPENFDA_API = 'https://api.fda.gov/drug';
 
 function fetchJson(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, (res) => {
+    const req = https.get(url, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
@@ -14,7 +14,9 @@ function fetchJson(url) {
           resolve(null);
         }
       });
-    }).on('error', reject);
+    });
+    req.on('error', reject);
+    req.setTimeout(10000, () => { req.destroy(); reject(new Error('OpenFDA timeout')); });
   });
 }
 

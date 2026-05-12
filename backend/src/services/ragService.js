@@ -54,7 +54,7 @@ async function retrieveRelevantKnowledge(symptomsText, conditions, prescriptionT
     if (conditions && conditions.length > 0) {
       for (const condition of conditions.slice(0, 5)) {
         const conditionDoc = await Condition.findOne({
-          name: { $regex: new RegExp(condition, 'i') }
+          name: { $regex: new RegExp(escapeRegex(condition), 'i') }
         }).lean();
         
         if (conditionDoc) {

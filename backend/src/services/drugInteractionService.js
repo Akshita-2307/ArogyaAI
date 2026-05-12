@@ -326,8 +326,8 @@ async function initializeCommonInteractions() {
   
   for (const interaction of COMMON_INTERACTIONS) {
     const existing = await DrugInteraction.findOne({
-      drug1Name: { $regex: new RegExp(`^${interaction.drug1}$`, 'i') },
-      drug2Name: { $regex: new RegExp(`^${interaction.drug2}$`, 'i') }
+      drug1Name: { $regex: new RegExp(`^${escapeRegex(interaction.drug1)}$`, 'i') },
+      drug2Name: { $regex: new RegExp(`^${escapeRegex(interaction.drug2)}$`, 'i') }
     });
     
     if (!existing) {
