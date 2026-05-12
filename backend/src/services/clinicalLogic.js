@@ -312,9 +312,9 @@ function analyzeSymptoms(symptoms, triageResult, prescriptionText) {
     
     // Check for dosage patterns that indicate chronic conditions
     const chronicPatterns = [
-      { pattern: /daily|every day|od\b/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
-      { pattern: /twice daily|bd|bid/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
-      { pattern: /take at bedtime|hs|nocte/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
+      { pattern: /daily|every day|\bod\b/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
+      { pattern: /twice daily|\bbd\b|\bbid\b/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
+      { pattern: /take at bedtime|\bhs\b|nocte/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
       { pattern: /chronic|ongoing|long.term/i, conditions: ['Chronic Condition', 'Long-term Treatment'] },
     ];
     
@@ -646,7 +646,8 @@ function extractMedicinesFromText(text) {
   const found = [];
   
   for (const med of KNOWN_MEDICINES) {
-    const regex = new RegExp(`\\b${med}\\b`, 'i');
+    const escaped = med.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`\\b${escaped}\\b`, 'i');
     if (regex.test(normalizedText)) {
       const capitalized = med.charAt(0).toUpperCase() + med.slice(1);
       if (!found.includes(capitalized)) {
