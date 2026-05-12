@@ -33,15 +33,15 @@ app.use(xssProtection);
 app.use(corsMiddleware);
 app.use(cookieParser());
 
-app.use(express.json({ limit: '10kb' }));
-app.use(express.urlencoded({ extended: true, limit: '10kb' }));
-app.use(express.text({ limit: '10kb' }));
+app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: true, limit: '100kb' }));
+app.use(express.text({ limit: '100kb' }));
 app.use(hpp());
 app.use(sanitizeHtml);
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-app.use('/api/health', standardLimiter);
+app.use('/api/health', standardLimiter, healthRoutes);
 
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/login', loginLimiter);
@@ -62,8 +62,6 @@ app.use((req, res, next) => {
   next(new ApiError(404, `Route ${req.originalUrl} not found`));
 });
 
-app.use(globalErrorHandler);
-
 app.use((err, req, res, next) => {
   if (err.message?.includes('CORS')) {
     return res.status(403).json({
@@ -73,5 +71,7 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+
+app.use(globalErrorHandler);
 
 module.exports = app;
