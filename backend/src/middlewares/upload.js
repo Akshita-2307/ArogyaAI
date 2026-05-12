@@ -54,10 +54,10 @@ const ALLOWED_DOCUMENT_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-const ALLLOWED_TYPES = ALLOWED_IMAGE_TYPES.concat(ALLOWED_DOCUMENT_TYPES);
+const ALLOWED_TYPES = ALLOWED_IMAGE_TYPES.concat(ALLOWED_DOCUMENT_TYPES);
 
 function fileFilter(req, file, cb) {
-  if (ALLLOWED_TYPES.indexOf(file.mimetype) !== -1) {
+  if (ALLOWED_TYPES.indexOf(file.mimetype) !== -1) {
     cb(null, true);
   } else {
     cb(new Error('Invalid file type. Allowed: JPG, PNG, GIF, WebP, PDF, DOC, DOCX'), false);
@@ -88,6 +88,6 @@ module.exports = {
   uploadImages: uploadImages,
   uploadPrescriptions: uploadPrescriptions,
   uploadFiles: uploadFiles,
-  ALLOWED_TYPES: ALLLOWED_TYPES,
+  ALLOWED_TYPES: ALLOWED_TYPES,
   UPLOAD_DIR: UPLOAD_DIR,
 };
