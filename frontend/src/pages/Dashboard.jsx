@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { analyzeApi } from '../api/analyzeApi'
 import { downloadAnalysisPDF } from '../utils/pdfGenerator'
 import { Activity, Plus, Clock, AlertTriangle, FileText, Download, TrendingUp, Heart, ArrowRight } from 'lucide-react'
-import { Card, Button, LoadingSpinner, RiskBadge, EmptyState } from '../components/common'
+import { Card, Button, LoadingSpinner, RiskBadge } from '../components/common'
 import toast from 'react-hot-toast'
 
 function formatDate(dateValue) {

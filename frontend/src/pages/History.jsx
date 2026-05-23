@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { analyzeApi } from '../api/analyzeApi'
 import { downloadAnalysisPDF } from '../utils/pdfGenerator'
 import { Clock, Filter, Search, FileText, ChevronLeft, ChevronRight, Download, Plus, Activity, X } from 'lucide-react'
-import { Card, Button, LoadingSpinner, RiskBadge, EmptyState } from '../components/common'
+import { Card, Button, LoadingSpinner, RiskBadge } from '../components/common'
 import toast from 'react-hot-toast'
 
 function formatDate(dateValue) {
