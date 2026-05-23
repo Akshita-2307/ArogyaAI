@@ -10,10 +10,6 @@ export default defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
       },
-      '/uploads': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
     },
   },
   build: {
@@ -21,9 +17,25 @@ export default defineConfig({
     sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          utils: ['axios', 'jspdf', 'lucide-react', 'react-hot-toast'],
+        // Vite 8 (Rolldown) expects manualChunks to be a function.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return
+          if (
+            id.includes('/react/') ||
+            id.includes('/react-dom/') ||
+            id.includes('/react-router-dom/')
+          ) {
+            return 'vendor'
+          }
+          if (
+            id.includes('/axios/') ||
+            id.includes('/jspdf/') ||
+            id.includes('/lucide-react/') ||
+            id.includes('/react-hot-toast/')
+          ) {
+            return 'utils'
+          }
+          return 'vendor'
         },
       },
     },
