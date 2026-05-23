@@ -236,9 +236,8 @@ async function getMedicineInfo(name) {
   
   if (medicine.rxcui) {
     try {
-      const [label, adverseEvents, recalls] = await Promise.all([
+      const [label, recalls] = await Promise.all([
         openFdaService.getDrugLabel(medicine.rxcui),
-        openFdaService.getAdverseEvents(medicine.rxcui, 5),
         openFdaService.checkRecalls(medicine.rxcui)
       ]);
       
