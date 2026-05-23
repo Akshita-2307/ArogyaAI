@@ -3,7 +3,7 @@ const triageService = require('../services/triageService');
 
 exports.analyzeSymptoms = async (req, res, next) => {
   try {
-    const { symptoms, userId } = req.body;
+    const { symptoms } = req.body;
 
     if (!symptoms || typeof symptoms !== 'string') {
       return res.status(400).json({
@@ -14,7 +14,8 @@ exports.analyzeSymptoms = async (req, res, next) => {
 
     const triageResult = await triageService.preDiagnosisCheck(symptoms);
 
-    const analysis = await aiService.analyzeSymptoms(symptoms, userId);
+    // aiService.analyzeSymptoms expects (symptoms, userContext, imageBase64, uploadedFiles, prescriptionText, knowledgeContext)
+    const analysis = await aiService.analyzeSymptoms(symptoms, {});
 
     res.status(200).json({
       status: 'success',
