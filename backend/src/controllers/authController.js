@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const ApiError = require('../utils/ApiError');
 const { createSendToken, verifyToken } = require('../utils/jwt');
-const { signToken } = require('../utils/jwt');
 
 exports.register = async (req, res, next) => {
   try {
@@ -21,9 +20,13 @@ exports.register = async (req, res, next) => {
     });
 
     const verificationToken = user.createEmailVerificationToken();
+    // Persist verification fields set by createEmailVerificationToken()
+    await user.save({ validateBeforeSave: false });
 
-    console.log(`Verification Token: ${verificationToken}`);
-    console.log(`Verification URL: ${req.protocol}://${req.get('host')}/api/auth/verify-email/${verificationToken}`);
+    // Never log raw tokens in production.
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Auth] Verification URL: ${req.protocol}://${req.get('host')}/api/auth/verify-email/${verificationToken}`);
+    }
 
     createSendToken(user, 201, res);
   } catch (error) {
@@ -96,8 +99,9 @@ exports.forgotPassword = async (req, res, next) => {
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
-    console.log(`Password Reset Token: ${resetToken}`);
-    console.log(`Reset URL: ${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`);
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Auth] Reset URL: ${req.protocol}://${req.get('host')}/api/auth/reset-password/${resetToken}`);
+    }
 
     res.status(200).json({
       status: 'success',
