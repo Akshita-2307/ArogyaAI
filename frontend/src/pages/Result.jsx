@@ -4,9 +4,9 @@ import { analyzeApi } from '../api/analyzeApi'
 import { downloadAnalysisPDF } from '../utils/pdfGenerator'
 import { 
   AlertTriangle, Clock, User, FileText, Image, ArrowLeft, 
-  Download, Share2, Activity, Shield, CheckCircle, Heart,
-  Stethoscope, Pill, MapPin, Phone, FileDown, Plus, 
-  Brain, TrendingUp, Calendar, ChevronRight, Info, 
+  Download, Share2, Activity, Shield, CheckCircle,
+  Stethoscope, MapPin, Plus, 
+  Brain, Calendar, ChevronRight, 
   AlertCircle, Zap, Crosshair
 } from 'lucide-react'
 import { Card, Button, RiskBadge } from '../components/common'

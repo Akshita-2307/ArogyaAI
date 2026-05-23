@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analyzeApi } from '../api/analyzeApi'
 import { Upload, FileText, Image, X, AlertCircle, CheckCircle, Stethoscope, Sparkles, User, Heart } from 'lucide-react'
-import { Card, Button, TextArea, Input, LoadingSpinner, Alert } from '../components/common'
+import { Card, Button, TextArea, LoadingSpinner, Alert } from '../components/common'
 import toast from 'react-hot-toast'
 
 export default function NewAnalysis() {

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { Activity, Mail, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { Button, Input, Card, ErrorState } from '../components/common'
+import { Button, Input, Card } from '../components/common'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -45,11 +45,6 @@ export default function Login() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const handleRetry = () => {
-    setError(null)
-    setFormData({ email: '', password: '' })
   }
 
   return (
