@@ -1,5 +1,3 @@
-const ApiError = require('../utils/ApiError');
-
 const devErrors = (res, error) => {
   res.status(error.statusCode).json({
     status: error.status,
@@ -22,13 +20,16 @@ const prodErrors = (res, error) => {
   }
 };
 
-const globalErrorHandler = (err, req, res, next) => {
+const globalErrorHandler = (err, req, res, _next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
     devErrors(res, err);
   } else if (process.env.NODE_ENV === 'production') {
+    prodErrors(res, err);
+  } else {
+    // Default: behave like production to avoid hanging requests.
     prodErrors(res, err);
   }
 };

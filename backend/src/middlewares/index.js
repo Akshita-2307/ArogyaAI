@@ -3,7 +3,6 @@ const morgan = require('morgan');
 
 const { helmetConfig, xssProtection, removePoweredBy } = require('./security');
 const { requestIdMiddleware } = require('./requestId');
-const { sanitizeHtml } = require('./sanitize');
 
 function setupSecurityMiddleware(app) {
   app.use(removePoweredBy);
