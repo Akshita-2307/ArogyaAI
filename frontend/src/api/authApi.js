@@ -3,21 +3,11 @@ import api from './axios'
 export const authApi = {
   register: async (data) => {
     const response = await api.post('/auth/register', data)
-    const { accessToken, data: userData } = response.data
-    if (accessToken) {
-      localStorage.setItem('token', accessToken)
-      localStorage.setItem('user', JSON.stringify(userData.user))
-    }
     return response.data
   },
 
   login: async (data) => {
     const response = await api.post('/auth/login', data)
-    const { accessToken, data: userData } = response.data
-    if (accessToken) {
-      localStorage.setItem('token', accessToken)
-      localStorage.setItem('user', JSON.stringify(userData.user))
-    }
     return response.data
   },
 
@@ -27,7 +17,6 @@ export const authApi = {
     } catch (error) {
       console.warn('Logout API failed, clearing local storage')
     } finally {
-      localStorage.removeItem('token')
       localStorage.removeItem('user')
     }
   },

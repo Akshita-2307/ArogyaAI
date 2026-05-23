@@ -9,17 +9,39 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user')
-    const token = localStorage.getItem('token')
-
-    if (storedUser && token) {
-      setUser(JSON.parse(storedUser))
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser))
+      } catch {
+        localStorage.removeItem('user')
+      }
     }
-    setLoading(false)
+
+    const hydrateFromServer = async () => {
+      try {
+        const me = await authApi.getMe()
+        const freshUser = me?.data?.user
+        if (freshUser) {
+          setUser(freshUser)
+          localStorage.setItem('user', JSON.stringify(freshUser))
+        } else {
+          setUser(null)
+          localStorage.removeItem('user')
+        }
+      } catch {
+        // Not logged in / session expired
+        setUser(null)
+        localStorage.removeItem('user')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    hydrateFromServer()
   }, [])
 
   const login = async (email, password) => {
     const data = await authApi.login({ email, password })
-    localStorage.setItem('token', data.accessToken)
     localStorage.setItem('user', JSON.stringify(data.data.user))
     setUser(data.data.user)
     return data
@@ -27,7 +49,6 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     const data = await authApi.register(userData)
-    localStorage.setItem('token', data.accessToken)
     localStorage.setItem('user', JSON.stringify(data.data.user))
     setUser(data.data.user)
     return data
