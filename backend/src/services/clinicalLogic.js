@@ -369,7 +369,7 @@ function analyzeSymptoms(symptoms, triageResult, prescriptionText) {
 }
 
 function generateClinicalReasoning(symptoms, analysis) {
-  const { detectedSymptoms, conditions, riskLevel, riskReasons, totalRiskScore } = analysis;
+  const { detectedSymptoms, conditions, riskLevel, riskReasons } = analysis;
   
   if (detectedSymptoms.length === 0) {
     return 'The symptoms provided have been analyzed. Based on the symptom pattern, common conditions may include viral infections, common cold, or general fatigue. Further medical evaluation is recommended for accurate diagnosis.';
@@ -418,7 +418,7 @@ function generateRiskExplanation(riskLevel, analysis) {
   return explanations[riskLevel] || explanations.moderate;
 }
 
-function generateSummary(riskLevel, conditions, symptoms) {
+function generateSummary(riskLevel, conditions) {
   if (!conditions || conditions.length === 0) {
     return 'Your symptoms have been analyzed. Medical consultation is recommended for proper diagnosis and treatment.';
   }
@@ -435,7 +435,7 @@ function generateSummary(riskLevel, conditions, symptoms) {
   return summaries[riskLevel] || summaries.moderate;
 }
 
-function generateRecommendations(riskLevel, conditions) {
+function generateRecommendations(riskLevel) {
   const base = {
     critical: [
       'Seek immediate emergency medical care',
@@ -575,11 +575,6 @@ function recommendSpecialist(symptoms, triageResult, riskLevel) {
   }
   
   return 'General Physician';
-}
-
-function capitalizeFirst(str) {
-  if (!str) return '';
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 const KNOWN_MEDICINES = [
