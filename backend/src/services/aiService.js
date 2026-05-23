@@ -1,4 +1,6 @@
 const https = require('https');
+const openaiService = require('./openaiService');
+const logger = require('../utils/logger');
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 
@@ -176,7 +178,7 @@ function parseJson(text) {
         // Fix single quotes to double quotes
         fixed = fixed.replace(/'/g, '"');
         // Try parsing fixed version
-        try { return JSON.parse(fixed); } catch (e3) {}
+        try { return JSON.parse(fixed); } catch (e3) { /* ignore */ }
       }
     }
     
@@ -186,7 +188,7 @@ function parseJson(text) {
       try {
         const conditions = conditionsMatch[1].match(/"([^"]+)"/g)?.map(c => c.replace(/"/g, '')) || [];
         return { possible_conditions: conditions, risk_level: 'moderate' };
-      } catch (e4) {}
+    } catch (e4) { /* ignore */ }
     }
     
     return null;
@@ -218,7 +220,7 @@ function extractPartialInfo(text) {
       if (conditions.length > 0) {
         result.possible_conditions = conditions.slice(0, 5);
       }
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
   
   // Extract risk level
@@ -239,7 +241,7 @@ function extractPartialInfo(text) {
       if (medicines.length > 0) {
         result.detected_medicines = medicines.slice(0, 10);
       }
-    } catch (e) {}
+    } catch (e) { /* ignore */ }
   }
   
   // If we couldn't extract anything useful, return null
@@ -274,19 +276,24 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
   
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.error('[Gemini] API key not configured');
-    return getSafeResponse();
+    logger.warn('[Gemini] API key not configured. Falling back to OpenAI (if configured).');
+    try {
+      return await openaiService.analyzeWithOpenAI(prompt);
+    } catch (e) {
+      logger.warn('[Gemini->OpenAI fallback] Failed:', e.message);
+      return getSafeResponse();
+    }
   }
 
   const model = DEFAULT_MODEL;
 
-  console.log(`[Gemini] Using model: ${model}`);
-  console.log(`[Gemini] Has image data:`, !!imageData);
+  logger.debug(`[Gemini] Using model: ${model}`);
+  logger.debug(`[Gemini] Has image data:`, !!imageData);
 
   let contents = [];
   
   if (imageData && attempt === 1) {
-    console.log('[Gemini] Attempting multimodal analysis with image...');
+    logger.debug('[Gemini] Attempting multimodal analysis with image...');
     contents = [{
       role: 'user',
       parts: [
@@ -300,7 +307,7 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
       ]
     }];
   } else {
-    console.log('[Gemini] Using text-only analysis...');
+    logger.debug('[Gemini] Using text-only analysis...');
     contents = [{
       role: 'user',
       parts: [{ text: prompt }]
@@ -330,24 +337,30 @@ async function analyzeWithGemini(prompt, imageData, attempt) {
         errMsg = errData;
       }
       
-      console.error(`[Gemini] API Error ${response.status}:`, errMsg.substring(0, 500));
+      logger.warn(`[Gemini] API Error ${response.status}:`, errMsg.substring(0, 200));
 
       const errLower = errMsg.toLowerCase();
       
       if (response.status === 429 || errLower.includes('quota')) {
-        console.error('[Gemini] QUOTA EXCEEDED');
-        return {
-          risk_level: 'moderate',
-          risk_explanation: 'AI analysis unavailable due to API quota limits.',
-          summary: 'AI analysis temporarily unavailable due to quota limits.',
-          possible_conditions: ['Analysis pending - quota exceeded'],
-          recommendations: ['Please try again later'],
-          red_flags: ['AI quota exceeded'],
-          confidence_score: 0.3,
-          clinical_reasoning: 'AI analysis unavailable - quota exceeded.',
-          suggested_tests: null,
-          error: 'quota_exceeded'
-        };
+        logger.warn('[Gemini] QUOTA EXCEEDED. Falling back to OpenAI (if configured).');
+        try {
+          const openAiResult = await openaiService.analyzeWithOpenAI(prompt);
+          return { ...openAiResult, fallback: 'openai', error: 'gemini_quota_exceeded' };
+        } catch (e) {
+          logger.warn('[Gemini->OpenAI fallback] Failed:', e.message);
+          return {
+            risk_level: 'moderate',
+            risk_explanation: 'AI analysis unavailable due to API quota limits.',
+            summary: 'AI analysis temporarily unavailable due to quota limits.',
+            possible_conditions: ['Analysis pending - quota exceeded'],
+            recommendations: ['Please try again later'],
+            red_flags: ['AI quota exceeded'],
+            confidence_score: 0.3,
+            clinical_reasoning: 'AI analysis unavailable - quota exceeded.',
+            suggested_tests: null,
+            error: 'quota_exceeded'
+          };
+        }
       }
 
       const isImageError = imageData && response.status !== 503 && (
