@@ -39,7 +39,7 @@ async function getDrugLabel(rxcui) {
       warnings: label.warnings || [],
       adverseReactions: label.adverse_reactions || [],
       pregnancyCategory: label.pregnancy || [],
-      breastfeeing: label.breastfeeding || [],
+      breastfeeding: label.breastfeeding || [],
     };
   } catch (error) {
     console.error('[OpenFDA] Label error:', error.message);
