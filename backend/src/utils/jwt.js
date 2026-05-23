@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const config = require('../config');
-const User = require('../models/User');
-const ApiError = require('../utils/ApiError');
 
 const signToken = (id) => {
   return jwt.sign({ id }, config.jwt.secret, {
@@ -24,7 +22,8 @@ const createSendToken = (user, statusCode, res) => {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    // Lax works for typical SPA-on-different-port localhost setups and reduces CSRF risk somewhat.
+    sameSite: 'lax',
   };
 
   res.cookie('jwt', accessToken, cookieOptions);
@@ -42,8 +41,6 @@ const createSendToken = (user, statusCode, res) => {
 
   res.status(statusCode).json({
     status: 'success',
-    accessToken,
-    refreshToken,
     data: {
       user,
     },
