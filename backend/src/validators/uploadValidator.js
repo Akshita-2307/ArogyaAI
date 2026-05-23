@@ -12,7 +12,7 @@ const ALLOWED_DOCUMENT_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
-const ALLLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES];
+const ALLOWED_TYPES = [...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOCUMENT_TYPES];
 
 const Joi = require('joi');
 
@@ -50,6 +50,6 @@ const uploadFilesSchema = Joi.object({
 module.exports = {
   ALLOWED_IMAGE_TYPES,
   ALLOWED_DOCUMENT_TYPES,
-  ALLLOWED_TYPES,
+  ALLOWED_TYPES,
   uploadFilesSchema,
 };
