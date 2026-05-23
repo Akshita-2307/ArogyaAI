@@ -17,6 +17,22 @@ exports.getAllUsers = async (req, res, next) => {
   }
 };
 
+exports.getMe = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { user },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id);
@@ -30,6 +46,35 @@ exports.getUser = async (req, res, next) => {
       data: {
         user,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateMe = async (req, res, next) => {
+  try {
+    const allowedFields = ['name', 'phone', 'dateOfBirth', 'gender', 'bloodGroup', 'profileImage'];
+    const updates = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    });
+
+    const user = await User.findByIdAndUpdate(req.user.id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      throw new ApiError(404, 'User not found');
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { user },
     });
   } catch (error) {
     next(error);
