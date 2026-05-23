@@ -4,7 +4,6 @@ export function generateAnalysisPDF(analysis) {
   const doc = new jsPDF()
   
   const ai = analysis.ai || analysis.aiAnalysis || {}
-  const triage = analysis.triageResult || {}
   const pageWidth = doc.internal.pageSize.getWidth()
   const pageHeight = doc.internal.pageSize.getHeight()
   const margin = 15
@@ -49,20 +48,6 @@ export function generateAnalysisPDF(analysis) {
     y += 12
   }
 
-  const label = (text) => {
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'bold')
-    doc.setTextColor(60, 60, 60)
-    doc.text(text + ':', margin, y)
-  }
-
-  const value = (text) => {
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(0, 0, 0)
-    doc.text(text || '-', margin + 40, y)
-  }
-
   const paragraph = (text, size = 9) => {
     doc.setFontSize(size)
     doc.setFont('helvetica', 'normal')
@@ -73,15 +58,6 @@ export function generateAnalysisPDF(analysis) {
       doc.text(line, margin + 3, y)
       y += size * 0.45
     })
-  }
-
-  const bullet = (text, size = 9) => {
-    checkPage(6)
-    doc.setFontSize(size)
-    doc.setFont('helvetica', 'normal')
-    doc.setTextColor(30, 30, 30)
-    doc.text('•  ' + text, margin + 3, y)
-    y += size * 0.5
   }
 
   const checkbox = (text, size = 9) => {
