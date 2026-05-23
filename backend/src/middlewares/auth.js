@@ -14,6 +14,11 @@ const protect = async (req, res, next) => {
       token = req.headers.authorization.split(' ')[1];
     }
 
+    // Support cookie-based auth (httpOnly cookie set by createSendToken)
+    if (!token && req.cookies && req.cookies.jwt) {
+      token = req.cookies.jwt;
+    }
+
     if (!token) {
       throw new ApiError(401, 'You are not logged in. Please log in to get access.');
     }
