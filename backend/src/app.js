@@ -1,8 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const hpp = require('hpp');
-const path = require('path');
-
 const { helmetConfig, xssProtection, removePoweredBy } = require('./middlewares/security');
 const { requestIdMiddleware } = require('./middlewares/requestId');
 const { sanitizeHtml } = require('./middlewares/sanitize');
@@ -38,8 +36,6 @@ app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 app.use(express.text({ limit: '100kb' }));
 app.use(hpp());
 app.use(sanitizeHtml);
-
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use('/api/health', standardLimiter, healthRoutes);
 
