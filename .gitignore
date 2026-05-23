@@ -10,11 +10,18 @@ build/
 out/
 
 # Environment files (uncomment to hide secrets)
-# .env
-# .env.local
-# .env.development
-# .env.production
-# .env.*.local
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+.env.example
+
+# Backend/frontend envs (explicit)
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
 
 # IDE
 .vscode/
