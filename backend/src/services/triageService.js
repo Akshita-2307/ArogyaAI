@@ -6,7 +6,7 @@ function analyzeSymptoms(symptoms) {
 }
 
 function analyzeHealthData(healthData) {
-  const symptomTexts = [];
+  let symptomTexts = [];
 
   if (healthData.symptoms && Array.isArray(healthData.symptoms)) {
     symptomTexts = symptomTexts.concat(healthData.symptoms);
