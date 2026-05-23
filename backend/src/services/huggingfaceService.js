@@ -1,7 +1,5 @@
 const https = require('https');
 
-const HF_API_URL = 'https://router.huggingface.co/v1';
-
 const OCR_MODELS = [
   'Qwen/Qwen2.5-VL-72B-Instruct',
   'Qwen/Qwen2-VL-72B-Instruct',
@@ -204,8 +202,16 @@ async function processPrescriptionFile(filePath) {
     const pdfResult = await extractTextFromPDF(filePath);
     
     if (pdfResult && !pdfResult.success && pdfResult.isScanned) {
-      console.log('[HF OCR] PDF is scanned, trying image-based OCR...');
-      return await extractTextFromImage(filePath);
+      // Bugfix: scanned PDFs cannot be sent directly as an image to vision OCR.
+      // If you want OCR for scanned PDFs, you must first render PDF pages to images.
+      console.log('[HF OCR] PDF is scanned/image-based. Skipping vision OCR (PDF->image conversion not implemented).');
+      return {
+        success: false,
+        text: pdfResult.text || '',
+        model: 'pdf-parse',
+        isScanned: true,
+        reason: 'scanned_pdf_requires_pdf_to_image'
+      };
     }
     
     return pdfResult;
